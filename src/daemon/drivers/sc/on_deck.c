@@ -23,8 +23,21 @@
 
 static controller_available_cb controller_available = NULL;
 
+char HexLookUp[] = "0123456789ABCDEF";    
+void bytes2hex (unsigned char *src, char *out, int len)
+{
+    while(len--)
+    {
+        *out++ = HexLookUp[*src >> 4];
+        *out++ = HexLookUp[*src & 0x0F];
+        src++;
+    }
+    *out = 0;
+}
+
 void input_interrupt_cb(Daemon* d, InputDevice* dev, uint8_t endpoint, const uint8_t* data, void* userdata) {
 	SCController* sc = (SCController*)userdata;
+
 	if (data == NULL) {
 		// Means controller disconnected (or failed in any other way)
 		DEBUG("%s disconnected", sc->desc);
@@ -36,6 +49,12 @@ void input_interrupt_cb(Daemon* d, InputDevice* dev, uint8_t endpoint, const uin
 		// TODO: Deallocate sc
 		return;
 	}
+
+	char buffer[CHUNK_LENGTH * 2 + 1];
+    bytes2hex(data, buffer, CHUNK_LENGTH);
+
+	DEBUG("Input Received on endpoint %d: %s", endpoint, buffer);
+
 	SCInput* i = (SCInput*)data;
 	if (i->ptype == PT_INPUT)
 		handle_input(sc, i);
@@ -74,7 +93,7 @@ static bool hotplug_cb(Daemon* daemon, const InputDeviceData* idata) {
 		goto hotplug_cb_failed_to_configure;
 	if (!dev->interupt_read_loop(dev, ENDPOINT, 64, &input_interrupt_cb, sc))
 		goto hotplug_cb_failed_to_configure;
-	DEBUG("New wired Steam Controller with serial %s connected", sc->serial);
+	DEBUG("Internal Steam Deck Controller connected");
 	sc->state = SS_READY;
 	if (!daemon->controller_add(&sc->controller)) {
 		// This shouldn't happen unless memory is running out
