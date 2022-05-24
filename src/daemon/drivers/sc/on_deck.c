@@ -4,7 +4,7 @@
  * Used to communicate with single Steam Controller
  * connected directly by USB cable.
  */
-#define LOG_TAG "sc_by_cable"
+#define LOG_TAG "sc_on_deck"
 #include "scc/utils/logging.h"
 #include "scc/utils/assert.h"
 #include "scc/input_device.h"
@@ -63,10 +63,10 @@ static bool hotplug_cb(Daemon* daemon, const InputDeviceData* idata) {
 			goto hotplug_cb_fail;
 		}
 	}
-	if (!read_serial(sc)) {
-		LERROR("Failed to read serial number");
-		goto hotplug_cb_failed_to_configure;
-	}
+	//if (!read_serial(sc)) {
+	//	LERROR("Failed to read serial number");
+	//	goto hotplug_cb_failed_to_configure;
+	//}
 	if (!clear_mappings(sc))
 		// clear_mappings is needed on Windows, as kernel driver cannot be deatached there
 		goto hotplug_cb_failed_to_configure;
