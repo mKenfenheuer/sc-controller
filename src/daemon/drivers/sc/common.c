@@ -94,8 +94,10 @@ void handle_input_deck(SCController* sc, SDInput* i) {
 			if ((buttons & B_STICKPRESS) && !(buttons & B_STICKTILT))
 				buttons &= ~B_LPADPRESS;
 		}
-		sc->input.buttons = buttons;
 		*/
+		SCButton buttons = (((SCButton)i->buttons1) << 24) | (((SCButton)i->buttons0) << 8);
+		sc->input.buttons = buttons;
+		
 		sc->mapper->input(sc->mapper, &sc->input);
 	}
 }
