@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x
+
 LIBS=(libwinpthread-1.dll libsystre-0.dll libtre-5.dll libusb-1.0.dll
 		libintl-8.dll libgcc_s_dw2-1.dll libiconv-2.dll libstdc++-6.dll
 		libpython2.7.dll libgirepository-1.0-1.dll)
@@ -37,7 +39,7 @@ GTK_ICONS=(
 		ui/pan-end-symbolic.symbolic.png
 		ui/pan-up-symbolic.symbolic.png
 )
-DRIVERS=(sc_by_cable sc_dongle)
+DRIVERS=(sc_by_cable sc_dongle sc_on_deck)
 
 export PROCESSOR_ARCHITEW6432=x86
 # meson $1
@@ -95,5 +97,5 @@ for i in "${GTK_ICONS[@]}" ; do
 	[ -e release-win32/share/images/"$n" ] || cp -nv \
 		/mingw32/share/icons/Adwaita/16x16/"$i" release-win32/share/images/"$n"
 done
-cp -vu /mingw32/share/icons/Adwaita/16x16/legacy/document-save.png release-win32/share/images/gtk-save-ltr.png
+#cp -vu /mingw32/share/icons/Adwaita/16x16/legacy/document-save.png release-win32/share/images/gtk-save-ltr.png
 

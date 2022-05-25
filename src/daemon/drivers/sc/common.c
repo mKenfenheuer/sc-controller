@@ -9,6 +9,7 @@
 #include "sc.h"
 #include <stddef.h>
 #include <string.h>
+#include <stdint.h>
 
 #define B_STICKTILT			0b10000000000000000000000000000000
 
@@ -50,6 +51,51 @@ void handle_input(SCController* sc, SCInput* i) {
 		// SC Controller doesn't use them, so they are zeroed here
 		buttons &= ~0b00000000000011110000000000000000;
 		sc->input.buttons = buttons;
+		sc->mapper->input(sc->mapper, &sc->input);
+	}
+}
+
+#define SD_TRIGGER_MAX 0x7FFF
+
+void handle_input_deck(SCController* sc, SDInput* i) {
+	if (sc->mapper != NULL) {
+		float ltrig_perc = i->ltrig / SD_TRIGGER_MAX;
+		float rtrig_perc = i->rtrig / SD_TRIGGER_MAX;
+
+		sc->input.ltrig = (uint8_t)(ltrig_perc * UINT8_MAX);
+		sc->input.rtrig = (uint8_t)(rtrig_perc * UINT8_MAX);
+		
+		sc->input.rpad_x = i->rthumb_x;
+		sc->input.rpad_y = i->rthumb_y;
+
+		sc->input.lpad_x = i->rthumb_x;
+		sc->input.lpad_y = i->rthumb_y;
+
+		sc->input.stick_x = i->rthumb_x;
+		sc->input.stick_y = i->rthumb_y;
+
+		memcpy(&sc->input.rpad_x, &i->lthumb_x, sizeof(AxisValue) * 2);
+		memcpy(&sc->input.gyro, &i->accel_x, sizeof(struct GyroInput));
+		
+		/*SCButton buttons = (((SCButton)i->buttons1) << 24) | (((SCButton)i->buttons0) << 8);
+		bool lpadtouch = buttons & B_LPADTOUCH;
+		bool sticktilt = buttons & B_STICKTILT;
+		if (lpadtouch & !sticktilt)
+			sc->input.stick_x = sc->input.stick_y = 0;
+		else if (!lpadtouch)
+			memcpy(&sc->input.stick_x, &i->lpad_x, sizeof(AxisValue) * 2);
+		if (!(lpadtouch || sticktilt))
+			sc->input.lpad_x = sc->input.lpad_y = 0;
+		else if (lpadtouch)
+			memcpy(&sc->input.lpad_x, &i->lpad_x, sizeof(AxisValue) * 2);
+		
+		if (buttons & B_LPADPRESS) {
+			// LPADPRESS button may signalize pressing stick instead
+			if ((buttons & B_STICKPRESS) && !(buttons & B_STICKTILT))
+				buttons &= ~B_LPADPRESS;
+		}
+		sc->input.buttons = buttons;
+		*/
 		sc->mapper->input(sc->mapper, &sc->input);
 	}
 }

@@ -23,6 +23,24 @@
 
 static controller_available_cb controller_available = NULL;
 
+void print_byte_as_bits(char val) {
+  for (int i = 7; 0 <= i; i--) {
+    printf("%c", (val & (1 << i)) ? '1' : '0');
+  }
+}
+
+void print_bits(char * ty, char * val, unsigned char * bytes, size_t num_bytes) {
+  printf("(%*s) %*s = [ ", 15, ty, 16, val);
+  for (size_t i = 0; i < num_bytes; i++) {
+    print_byte_as_bits(bytes[i]);
+    printf(" ");
+  }
+  printf("]\n");
+}
+
+#define SHOW(T,V) do { T x = V; print_bits(#T, #V, (unsigned char*) &x, sizeof(x)); } while(0)
+
+
 char HexLookUp[] = "0123456789ABCDEF";    
 void bytes2hex (unsigned char *src, char *out, int len)
 {
@@ -34,6 +52,8 @@ void bytes2hex (unsigned char *src, char *out, int len)
     }
     *out = 0;
 }
+
+#define SD_TRIGGER_MAX 0x7FFF
 
 void input_interrupt_cb(Daemon* d, InputDevice* dev, uint8_t endpoint, const uint8_t* data, void* userdata) {
 	SCController* sc = (SCController*)userdata;
@@ -50,14 +70,22 @@ void input_interrupt_cb(Daemon* d, InputDevice* dev, uint8_t endpoint, const uin
 		return;
 	}
 
+	/*
 	char buffer[CHUNK_LENGTH * 2 + 1];
     bytes2hex(data, buffer, CHUNK_LENGTH);
 
 	DEBUG("Input Received on endpoint %d: %s", endpoint, buffer);
+	DEBUG("offset of lpad_x: %2x", offsetof(struct SDInput, lpad_x));
+*/
+	
+	SDInput* i = (SDInput*)data;
+	
+	SCButton buttons = (((SCButton)i->buttons1) << 24) | (((SCButton)i->buttons0) << 8);
+	SHOW(SCButton, buttons);
 
-	SCInput* i = (SCInput*)data;
+
 	if (i->ptype == PT_INPUT)
-		handle_input(sc, i);
+		handle_input_deck(sc, i);
 }
 
 

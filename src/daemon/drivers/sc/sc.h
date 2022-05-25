@@ -3,6 +3,7 @@
 
 typedef struct SCController SCController;
 typedef struct SCInput SCInput;
+typedef struct SDInput SDInput;
 
 typedef enum {
 	SC_WIRED = 1,
@@ -22,6 +23,40 @@ typedef enum {
 /** MAX_DESC_LEN has to fit "scSERIAL" */
 #define MAX_ID_LEN (3 + MAX_SERIAL_LEN)
 
+struct SDInput {
+	uint8_t			ptype;  		//0x00
+	uint8_t			_a1[3]; 		//0x01 
+	uint32_t		seq;			//0x03 
+	uint16_t		buttons0;		//0x09 
+	uint8_t			buttons1;		//0x0A
+	uint8_t			buttons3;		//0x0C
+	uint8_t			buttons4;		//0x0D
+	uint8_t			buttons5;		//0x0E
+	uint8_t			buttons6;		//0x0E
+	int16_t			lpad_x;			//0x10
+	int16_t			lpad_y;			//0x12
+	int16_t			rpad_x;			//0x13
+	int16_t			rpad_y;			//0x16
+	int16_t			accel_x;		//0x18
+	int16_t			accel_y;		//0x1A
+	int16_t			accel_z;		//0x1C
+	int16_t			gpitch;			//0x1E
+	int16_t			gyaw;			//0x20
+	int16_t			groll;			//0x22
+	int16_t			q1;				//0x24
+	int16_t			q2;				//0x26
+	int16_t			q3;				//0x28
+	int16_t			q4;				//0x2A
+	int16_t			ltrig;			//0x2C
+	int16_t			rtrig;			//0x2E
+	int16_t			lthumb_x;		//0x30
+	int16_t			lthumb_y;		//0x32
+	int16_t			rthumb_x;		//0x34
+	int16_t			rthumb_y;		//0x36
+	int16_t			lpad_pressure;	//0x38
+	int16_t			rpad_pressure;	//0x3A
+	// uint8_t		_a4[16];
+};
 
 struct SCInput {
 	uint8_t			_a1[2];
